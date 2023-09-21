@@ -3,6 +3,7 @@ import random
 import copy
 import time
 from collections import deque
+import heapq
 
 def GENERAR_MATRIZ_META(N):
     if N < 2:
@@ -167,10 +168,6 @@ def CREAR_MATRIZ_TEMPORAL(ACCIONES, MATRIZ_DESORDENADA):
         elif accion == "ABAJO" and x < len(MATRIZ_RESULTANTE) - 1:
             MATRIZ_RESULTANTE[x][y], MATRIZ_RESULTANTE[x + 1][y] = MATRIZ_RESULTANTE[x + 1][y], MATRIZ_RESULTANTE[x][y]
 
-    # Imprimir la matriz resultante
-    for fila in MATRIZ_RESULTANTE:
-        print(fila)
-
     return MATRIZ_RESULTANTE
 
 
@@ -215,15 +212,67 @@ def son_matrices_iguales(matriz1, matriz2):
 
     return True  # Todas las comparaciones fueron iguales
 
-import heapq
 
-def esta_en_open_list(NODO, open_list):
-    for nodo in open_list:
-        estado_nodo = nodo[1]  # El estado del nodo en la tupla es el segundo elemento
-        if estado_nodo == NODO.state:
-            return True
-            
-    return False
+
+def obtener_NODO(open_list, estado):
+
+    for tupla in open_list:
+        segundo_elemento = tupla[1]
+        if segundo_elemento == estado:
+            tercer_elemento = tupla[2]
+            return tercer_elemento
+      
+
+def obtener_COSTO(closet_list, estado):
+    elemento_a_comparar = estado
+    primer_elemento = None
+    for x in closet_list:
+         if x[1] == elemento_a_comparar:
+             primer_elemento = x[0]
+             return primer_elemento
+
+def eliminar_nodo_de_open_list(open_list, estado):    
+    elemento_a_comparar = estado
+# Crear una nueva lista sin la tupla que coincide
+    open_list_sin_coincidencia = [(f2, state, nodo) for f2, state, nodo in open_list if state != elemento_a_comparar]
+
+# Reemplazar open_list con la nueva lista
+    open_list.clear()
+    for tupla in open_list_sin_coincidencia:
+        heapq.heappush(open_list, tupla)
+    return open_list_sin_coincidencia    
+
+
+def eliminar_nodo_de_closet_list(closed_list, estado):
+    elemento_a_comparar = estado
+
+# Convierte el conjunto de tuplas en una lista de tuplas
+    closed_list_lista = [tuple(x) for x in closed_list]
+
+# Elimina la tupla que coincide con el segundo elemento
+    closed_list_lista = [tupla for tupla in closed_list_lista if tupla[1] != elemento_a_comparar]
+
+# Convierte la lista de nuevo en un conjunto de tuplas
+    closed_list = set(closed_list_lista)
+    return closed_list
+
+def solucion(nodo_hoja):
+    nodo_actual = nodo_hoja
+    while nodo_actual.parent is not None:
+        nodo_actual = nodo_actual.parent
+    return nodo_actual
+
+
+
+# Ahora, nodo_raíz contendrá el nodo raíz
+
+   
+
+# Llamamos a la función para obtener el camino desde la hoja hasta la raíz
+
+
+# Ahora, nodo_raiz contendrá una lista de nodos desde la hoja hasta la raíz
+
 
 
 def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
@@ -231,16 +280,18 @@ def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     open_list = []
     closed_list = set()
     heapq.heappush(open_list, (NODO_INICIAL.f1, NODO_INICIAL.state, NODO_INICIAL))
+    nodos_explorados = 0
     while open_list:
-        current_cost, estado, NODO = heapq.heappop(open_list)
-
+        costo_actual , estado, NODO = heapq.heappop(open_list)
         if son_matrices_iguales(estado, MATRIZ_META):
             print("Se llego a la meta")
-            break
+            print("Nodos explorados:")
+            print(nodos_explorados)
+            return solucion(NODO)
             # Goal reached, construct and return the path
 
-
-        closed_list.add(NODO.state)
+        closed_list.add((NODO.f1, tuple(map(tuple, NODO.state))))
+        nodos_explorados = nodos_explorados +1
         ACCIONES = ACCIONES_LEGALES(estado)
         for ACCION in ACCIONES:
             # Crear NODO_HIJO
@@ -248,17 +299,87 @@ def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
                 parent=NODO,
                 action=[ACCION],
                 path_cost=NODO.path_cost + 1,
-                state = CREAR_MATRIZ_TEMPORAL([ACCION] , NODO.state),
-                heuristic1 = MANHATTAN_DISTANCE(NODO_HIJO.state, MATRIZ_META),
-                f1 = NODO_HIJO.heuristic1 + NODO_HIJO.path_cost
+                state = CREAR_MATRIZ_TEMPORAL([ACCION] , NODO.state)
             )
+            NODO_HIJO.heuristic1 = MANHATTAN_DISTANCE(NODO_HIJO.state, MATRIZ_META),
+            NODO_HIJO.f1 = sum(NODO_HIJO.heuristic1) + NODO_HIJO.path_cost
+            
+            
+            if any(nodo[1] == NODO_HIJO.state for nodo in open_list):
+              
+                   nodo_guardado = obtener_NODO(open_list, NODO_HIJO.state)
+                   if nodo_guardado.f1 <= NODO_HIJO.f1:
+                       continue
+                   
+                       
+            if any(x[1] == NODO_HIJO.state for x in closed_list): 
+                    costo =  obtener_COSTO(closed_list, NODO_HIJO.state)                                    
+                    if costo <= NODO_HIJO.f1:
+                        continue
+                
+       
+               
+            open_list = eliminar_nodo_de_open_list(open_list, NODO_HIJO.state)
+     
+            closed_list = eliminar_nodo_de_closet_list(closed_list, NODO_HIJO.state)
+            heapq.heappush(open_list, (NODO_HIJO.f1, NODO_HIJO.state, NODO_HIJO))
 
-            if NODO_HIJO.state in closed_list:
-                continue
+def A_START_F2(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
+    NODO_INICIAL.state = MATRIZ_DESORDENADA
+    open_list = []
+    closed_list = set()
+    heapq.heappush(open_list, (NODO_INICIAL.f2, NODO_INICIAL.state, NODO_INICIAL))
+    nodos_explorados = 0
+    while open_list:
+        costo_actual , estado, NODO = heapq.heappop(open_list)
+        if son_matrices_iguales(estado, MATRIZ_META):
+            print("Se llego a la meta")
+            print("Nodos explorados:")
+            print(nodos_explorados)
+            return solucion(NODO)
+            # Goal reached, construct and return the path
 
-            if NODO_HIJO.state not in open_list:
-                heapq.heappush(open_list,(NODO_HIJO.f1, NODO_HIJO.state, NODO_HIJO))
+        closed_list.add((NODO.f2, tuple(map(tuple, NODO.state))))
+        nodos_explorados = nodos_explorados +1
+        ACCIONES = ACCIONES_LEGALES(estado)
+        for ACCION in ACCIONES:
+            # Crear NODO_HIJO
+            NODO_HIJO = Nodo(
+                parent=NODO,
+                action=[ACCION],
+                path_cost=NODO.path_cost + 1,
+                state = CREAR_MATRIZ_TEMPORAL([ACCION] , NODO.state)
+            )
+            NODO_HIJO.heuristic2 = NRO_DE_PIEZAS_INCORRECTAS(NODO_HIJO.state, MATRIZ_META),
+            NODO_HIJO.f2 = sum(NODO_HIJO.heuristic2) + NODO_HIJO.path_cost
+            
+            
+            if any(nodo[1] == NODO_HIJO.state for nodo in open_list):
+              
+                   nodo_guardado = obtener_NODO(open_list, NODO_HIJO.state)
+                   if nodo_guardado.f2 <= NODO_HIJO.f2:
+                       continue
+                   
+                       
+            if any(x[1] == NODO_HIJO.state for x in closed_list): 
+                    costo =  obtener_COSTO(closed_list, NODO_HIJO.state)                                    
+                    if costo <= NODO_HIJO.f2:
+                        continue
+                
+       
+               
+            open_list = eliminar_nodo_de_open_list(open_list, NODO_HIJO.state)
+     
+            closed_list = eliminar_nodo_de_closet_list(closed_list, NODO_HIJO.state)
+            heapq.heappush(open_list, (NODO_HIJO.f2, NODO_HIJO.state, NODO_HIJO))
+                                       
+                
+                
+
+
         
+
+    
 
 
 
@@ -279,14 +400,12 @@ def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
         # Crear MATRIZ_TEMPORAL
         # Obtener ACCIONES legales
         ESTADO_ACTUAL = NODO.state
-        print("ESTADO ACTUAL")
-        print(ESTADO_ACTUAL)
+      
         if son_matrices_iguales(ESTADO_ACTUAL, MATRIZ_META):
             print("Se llego a la meta")
-            break
+            return solucion(NODO)
+            
         ACCIONES = ACCIONES_LEGALES(NODO.state)
-        print("ACCIONES DADO EL ESTADO ACTUAL")
-        print(ACCIONES)
         # Para cada ACCION de ACCIONES:
         for ACCION in ACCIONES:
             # Crear NODO_HIJO
@@ -296,8 +415,7 @@ def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
                 path_cost=NODO.path_cost + 1,
                 state = CREAR_MATRIZ_TEMPORAL([ACCION] , ESTADO_ACTUAL)
             )
-            print("ESTADO HIJO")
-            print(NODO_HIJO.state)
+          
             if tuple(map(tuple, NODO_HIJO.state)) not in estados_explorados:
                 nodos_explorados = nodos_explorados+1
         
@@ -308,7 +426,7 @@ def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
                  # Agregar NODO_HIJO como hijo del nodo actual
                 NODO.children.append(NODO_HIJO)  # Asumiendo que el nodo tiene un atributo 'children' para almacenar a sus hijos
                  # Imprimir NODO_HIJO.state
-                print(NODO_HIJO.state)
+                
             else:
                 print("YA SE EXPLORO")
     # Devolver NODO_INICIAL como la raíz del grafo
@@ -325,26 +443,27 @@ print(matriz_meta)
 RAIZ_ARBOL_BFS = BREADTH_FIRST_SEARCH(nodo_inicial, matriz_desordenada, matriz_meta)
 fin_BFS = time.time()  # Marcar el tiempo de finalización
 tiempo_transcurrido = fin_BFS - inicio_BFS
+
 print(tiempo_transcurrido)
 
+print("A* F1")
+inicio_A_START = time.time()
+RAIZ_ARBOL_A_F1 = A_START_F1(nodo_inicial, matriz_desordenada, matriz_meta)
+fin_A_Start = time.time()
+tiempo_transcurrido = fin_A_Start - inicio_A_START
+print(tiempo_transcurrido) 
 # Uso de la función para crear el árbol de búsqueda
 #raiz_del_grafo = BREADTH_FIRST_SEARCH(nodo_inicial, matriz, matriz_meta)
-def imprimir_grafo(nodo):
-    if nodo is None:
-        return
-
-    print(f"Estado: {nodo.state}")
-    print(f"Acción: {nodo.action}")
-    print(f"Costo del camino: {nodo.path_cost}")
-    print(f"Heurística 1 (Distancia de Manhattan): {nodo.heuristic1}")
-    print(f"Heurística 2 (Número de piezas incorrectas): {nodo.heuristic2}")
-    print(f"Valor F1: {nodo.f1}")
-    print(f"Valor F2: {nodo.f2}")
-    print("Nodos hijos:")
-    for hijo in nodo.children:
-        imprimir_grafo(hijo)
 
 # Llamar a la función de impresión a partir del nodo inicial
+print("A* F2")
+print("Matriz desordenada")
+print(matriz_desordenada)
+print("Matriz ordenada")
+print(matriz_meta)
+RAIZ_ARBOL_A_F2 = A_START_F2(nodo_inicial, matriz_desordenada, matriz_meta)
+
+
 
 
 
