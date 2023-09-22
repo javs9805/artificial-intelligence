@@ -206,9 +206,9 @@ def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     while open_list:
         costo_actual , estado, NODO = heapq.heappop(open_list)
         if son_matrices_iguales(estado, MATRIZ_META):
-            print("Se llego a la meta")
-            print("Nodos explorados:")
-            print(nodos_explorados)
+            #print("Se llego a la meta")
+            #print("Nodos explorados:")
+            #print(nodos_explorados)
             return solucion(NODO)
             # Goal reached, construct and return the path
 
@@ -246,9 +246,32 @@ def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
             closed_list = eliminar_nodo_de_closet_list(closed_list, NODO_HIJO.state)
             heapq.heappush(open_list, (NODO_HIJO.f1, NODO_HIJO.state, NODO_HIJO))
 
-nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
-inicio_A_Start_F1 = time.time() 
-CAMINO_A_START = A_START_F1(nodo_inicial,matriz_desordenada, matriz_meta)
-fin_A_Start_F1 = time.time()
-tiempo_transcurrido = fin_A_Start_F1 - inicio_A_Start_F1
-print(tiempo_transcurrido)
+def generarMatrizOrdenada(N):
+    # Crea una lista con los números del 1 a (NxN)-1
+    numeros = list(range(1, N * N))
+    numeros.append(0)
+    # Crea una matriz NxN llena de ceros
+    tabla = [[0] * N for _ in range(N)]
+
+    # Llena la matriz con los números del 1 a (NxN)-1
+    for i in range(N):
+        for j in range(N):
+            tabla[i][j] = numeros.pop(0)
+
+    # Deja el elemento NxN (última fila y última columna) vacío
+
+    return tabla    
+
+def iniciarSolucion(matriz_desordenada,N):
+    matriz_meta = generarMatrizOrdenada(N)
+    nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
+    inicio_A_Start_F1 = time.time()
+    CAMINO_A_START = A_START_F1(nodo_inicial,matriz_desordenada, matriz_meta)
+    fin_A_Start_F1 = time.time()
+    tiempo_transcurrido = fin_A_Start_F1 - inicio_A_Start_F1
+    print(CAMINO_A_START)
+    return CAMINO_A_START
+
+
+#iniciarSolucion([[2,7,3],[8,6,0],[1,5,4]],3)
+#iniciarSolucion([[1,0],[3,2]],2)

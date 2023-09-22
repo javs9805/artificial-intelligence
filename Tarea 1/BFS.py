@@ -74,10 +74,13 @@ def son_matrices_iguales(matriz1, matriz2):
     return True  # Todas las comparaciones fueron iguales
 
 def solucion(nodo_hoja):
+    camino = []  # Aquí almacenaremos el camino desde la hoja hasta la raíz
+
     nodo_actual = nodo_hoja
-    while nodo_actual.parent is not None:
+    while nodo_actual is not None:
+        camino.append(nodo_actual)
         nodo_actual = nodo_actual.parent
-    return nodo_actual
+    return camino
 
 def BUSCAR_ESPACIO_BLANCO(MATRIZ_TEMPORAL):
     # Buscar la posición del espacio en blanco (valor 0) en la matriz
@@ -181,12 +184,32 @@ def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     # Devolver NODO_INICIAL como la raíz del grafo
    
 
+def generarMatrizOrdenada(N):
+    # Crea una lista con los números del 1 a (NxN)-1
+    numeros = list(range(1, N * N))
+    print(numeros)
+    numeros.append(0)
+    # Crea una matriz NxN llena de ceros
+    tabla = [[0] * N for _ in range(N)]
 
-nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
-inicio_BFS = time.time() 
-RAIZ_ARBOL_BFS = BREADTH_FIRST_SEARCH(nodo_inicial, matriz_desordenada, matriz_meta)
-fin_BFS = time.time()  # Marcar el tiempo de finalización
-tiempo_transcurrido = fin_BFS - inicio_BFS
-print("Tiempo transcurrido:")
-print(tiempo_transcurrido)
+    # Llena la matriz con los números del 1 a (NxN)-1
+    for i in range(N):
+        for j in range(N):
+            tabla[i][j] = numeros.pop(0)
+
+    # Deja el elemento NxN (última fila y última columna) vacío
+    tabla[N - 1][N - 1] = ""
+
+    return tabla    
+
+def iniciarSolucion(matriz_desordenada,N):
+    matriz_meta = generarMatrizOrdenada(N)
+    nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
+    inicio_BFS = time.time() 
+    RAIZ_ARBOL_BFS = BREADTH_FIRST_SEARCH(nodo_inicial, matriz_desordenada, matriz_meta)
+    fin_BFS = time.time()  # Marcar el tiempo de finalización
+    tiempo_transcurrido = fin_BFS - inicio_BFS
+    print("Tiempo transcurrido:")
+    print(tiempo_transcurrido)
+    return RAIZ_ARBOL_BFS
 

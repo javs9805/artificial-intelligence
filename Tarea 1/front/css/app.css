@@ -1,0 +1,42 @@
+.table-puzzle {
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+.table-puzzle td {
+    border: 1px solid #ccc;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.table-puzzle td.empty {
+    background-color: #fff;
+    border: none;
+    cursor: default;
+}
+
+/* Estilo cuando el cursor pasa por encima de las celdas */
+.table-puzzle td:hover {
+    background-color: #f0f0f0;
+}
+
+/* Estilo cuando se hace clic en las celdas */
+.table-puzzle td:active {
+    background-color: #ddd;
+}
+
+/* Estilo de la tabla padre (contenedor) */
+.table-container {
+    text-align: center;
+}
+
+/* Estilo para ocultar el borde exterior de la tabla */
+.table-container .table-puzzle {
+    border: none;
+}

@@ -33,6 +33,10 @@ with open("matrices.txt", "r") as archivo:
         else:
             matriz_meta.append(numeros)
 
+print("Matriz desordenada")
+print(matriz_desordenada)
+
+
 # Ahora, matriz_desordenada y matriz_meta contienen las matrices leídas desde el archivo
 class Nodo:
     def __init__(self, parent=None, state=None, action=None, path_cost=0):
@@ -215,47 +219,65 @@ def A_START_F2(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     open_list = []
     closed_list = set()
     heapq.heappush(open_list, (NODO_INICIAL.f2, NODO_INICIAL.state, NODO_INICIAL))
-    nodos_explorados = 0
+    nodos_explorados =  1
     while open_list:
-        costo_actual , estado, NODO = heapq.heappop(open_list)
+        costo_actual, estado, NODO = heapq.heappop(open_list)
         if son_matrices_iguales(estado, MATRIZ_META):
-            print("Se llego a la meta")
+            print("Se llegó a la meta")
             print("Nodos explorados:")
             print(nodos_explorados)
+            print(NODO.state)
             return solucion(NODO)
-            # Goal reached, construct and return the path
-
-        closed_list.add((NODO.f2, tuple(map(tuple, NODO.state))))
-        nodos_explorados = nodos_explorados +1
+            
+        closed_list.add(tuple(map(tuple, NODO.state)))  # Agregar la matriz actual al conjunto de estados explorados
+        nodos_explorados += 1
         ACCIONES = ACCIONES_LEGALES(estado)
         for ACCION in ACCIONES:
-            # Crear NODO_HIJO
             NODO_HIJO = Nodo(
                 parent=NODO,
                 action=[ACCION],
                 path_cost=NODO.path_cost + 1,
-                state = CREAR_MATRIZ_TEMPORAL([ACCION] , NODO.state)
+                state=CREAR_MATRIZ_TEMPORAL([ACCION], estado)  # Actualizar el estado
             )
-            NODO_HIJO.heuristic2 = NRO_DE_PIEZAS_INCORRECTAS(NODO_HIJO.state, MATRIZ_META),
-            NODO_HIJO.f2 = sum(NODO_HIJO.heuristic2) + NODO_HIJO.path_cost
+            NODO_HIJO.heuristic2 = NRO_DE_PIEZAS_INCORRECTAS(NODO_HIJO.state, MATRIZ_META)
+            NODO_HIJO.f2 = NODO_HIJO.heuristic2 + NODO_HIJO.path_cost
             
-            
-            if any(nodo[1] == NODO_HIJO.state for nodo in open_list):
-              
-                   nodo_guardado = obtener_NODO(open_list, NODO_HIJO.state)
-                   if nodo_guardado.f2 <= NODO_HIJO.f2:
-                       continue
-                   
-                       
-            if any(x[1] == NODO_HIJO.state for x in closed_list): 
-                    costo =  obtener_COSTO(closed_list, NODO_HIJO.state)                                    
-                    if costo <= NODO_HIJO.f2:
-                        continue
+            if tuple(map(tuple, NODO_HIJO.state)) not in closed_list:  # Verificar si el estado ya fue explorado
+                open_list = eliminar_nodo_de_open_list(open_list, NODO_HIJO.state)
+                heapq.heappush(open_list, (NODO_HIJO.f2, NODO_HIJO.state, NODO_HIJO))
+
+    print("Nodos explorados")
+    print(nodos_explorados)
+    return NODO_INICIAL
 
 
-nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
-inicio_A_Start_F2 = time.time() 
-CAMINO_A_START = A_START_F2(nodo_inicial,matriz_desordenada, matriz_meta)
-fin_A_Start_F2 = time.time()
-tiempo_transcurrido = fin_A_Start_F2 - inicio_A_Start_F2
-print(tiempo_transcurrido)
+def generarMatrizOrdenada(N):
+    # Crea una lista con los números del 1 a (NxN)-1
+    numeros = list(range(1, N * N))
+    print(numeros)
+    numeros.append(0)
+    # Crea una matriz NxN llena de ceros
+    tabla = [[0] * N for _ in range(N)]
+
+    # Llena la matriz con los números del 1 a (NxN)-1
+    for i in range(N):
+        for j in range(N):
+            tabla[i][j] = numeros.pop(0)
+
+    # Deja el elemento NxN (última fila y última columna) vacío
+    tabla[N - 1][N - 1] = ""
+
+    return tabla    
+
+
+
+
+def iniciarSolucion(matriz_desordenada,N):
+    matriz_meta = generarMatrizOrdenada(N)
+    nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
+    inicio_A_Start_F2 = time.time() 
+    CAMINO_A_START = A_START_F2(nodo_inicial,matriz_desordenada, matriz_meta)
+    fin_A_Start_F2 = time.time()
+    tiempo_transcurrido = fin_A_Start_F2 - inicio_A_Start_F2
+    print(tiempo_transcurrido)
+    return CAMINO_A_START
