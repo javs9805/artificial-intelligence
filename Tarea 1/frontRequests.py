@@ -9,7 +9,9 @@ eel.init("front")
 # Define rutas y funciones de la aplicación web
 @eel.expose
 def AstarUno(matriz,N):
-    #matriz = [[1,2,3],[4,0,5],[7,8,6]]
+    matriz = [[0,1,3],
+              [2,5,4],
+              [7,8,6]]
     print(matriz)
     print(N)
     solucion = funcionAStarF1(matriz,N)
@@ -21,7 +23,11 @@ def AstarUno(matriz,N):
 
 @eel.expose
 def AstarDos(matriz,N):
-    #matriz = [[1,2,3],[4,0,5],[7,8,6]]
+    """
+    matriz = [[0,1,3],
+              [2,5,4],
+              [7,8,6]]
+    """
     print(matriz)
     print(N)
     solucion = funcionAStarF2(matriz,N)
@@ -33,6 +39,11 @@ def AstarDos(matriz,N):
 
 @eel.expose
 def bfs(matriz,N):
+    """
+    matriz = [[0,1,3],
+              [2,5,4],
+              [7,8,6]]
+    """
     print(matriz)
     print(N)
     solucion = funcionBFS(matriz,N)
