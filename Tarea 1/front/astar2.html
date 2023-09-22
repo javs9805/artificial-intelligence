@@ -117,6 +117,8 @@
         selector.addEventListener("change", function () {
             var selectedValue = parseInt(selector.value);
             N = selectedValue;
+            document.getElementById("desplazamientoValue").innerHTML = 1;            
+            document.getElementById("desplazamiento").setAttribute("disabled","true")
             createMatrixWithRandomValues(selectedValue);
         });
 
