@@ -101,6 +101,7 @@ def solucion(nodo_hoja):
     while nodo_actual is not None:
         camino.append(nodo_actual)
         nodo_actual = nodo_actual.parent
+    return camino
 
 def BUSCAR_ESPACIO_BLANCO(MATRIZ_TEMPORAL):
     # Buscar la posición del espacio en blanco (valor 0) en la matriz
