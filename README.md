@@ -13,3 +13,4 @@ En esta tarea implementamos 3 soluciones para el problema N-puzzle, las solucion
 2. A* con distancia de manhathan
 3. A* con Nro de piezas en lugar incorrecto
 
+[Link al paper de la tarea 1](https://docs.google.com/document/d/15Dys8iWYgZztKTNPT8uRXbZgczacVY1m/edit)
