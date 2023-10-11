@@ -50,7 +50,7 @@ class Nodo:
         self.f2 = None  # Valor F2 (path_cost + heuristic2)
         self.children = []
     def __lt__(self, other):
-        return self.f1 < other.f1
+        return self.f2 < other.f2
     
 def MANHATTAN_DISTANCE(ESTADO_ACTUAL, MATRIZ_META):
     if len(ESTADO_ACTUAL) != len(MATRIZ_META) or len(ESTADO_ACTUAL[0]) != len(MATRIZ_META[0]):
@@ -76,7 +76,9 @@ def NRO_DE_PIEZAS_INCORRECTAS(ESTADO_ACTUAL, MATRIZ_META):
         for j in range(len(ESTADO_ACTUAL[i])):
             if ESTADO_ACTUAL[i][j] != MATRIZ_META[i][j]:
                 piezas_incorrectas += 1
-
+    print('Numero de piezas incorrectas')
+    
+    print(piezas_incorrectas)
     return piezas_incorrectas
 
 def GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta):
@@ -192,7 +194,7 @@ def obtener_COSTO(closet_list, estado):
 def eliminar_nodo_de_open_list(open_list, estado):    
     elemento_a_comparar = estado
 # Crear una nueva lista sin la tupla que coincide
-    open_list_sin_coincidencia = [(f2, state, nodo) for f2, state, nodo in open_list if state != elemento_a_comparar]
+    open_list_sin_coincidencia = [(f2, state, nodo) for f2, state, nodo in open_list if not  son_matrices_iguales(state ,elemento_a_comparar)]
 
 # Reemplazar open_list con la nueva lista
     open_list.clear()
@@ -214,7 +216,7 @@ def eliminar_nodo_de_closet_list(closed_list, estado):
     return closed_list
 
 
-def A_START_F2(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
+def A_START_F1(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     NODO_INICIAL.state = MATRIZ_DESORDENADA
     open_list = []
     closed_list = set()
@@ -250,6 +252,57 @@ def A_START_F2(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     print(nodos_explorados)
     return NODO_INICIAL
 
+def A_START_F2(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
+    NODO_INICIAL.state = MATRIZ_DESORDENADA
+    open_list = []
+    closed_list = set()
+    heapq.heappush(open_list, (NODO_INICIAL.f2, NODO_INICIAL.state, NODO_INICIAL))
+    nodos_explorados = 0
+    while open_list:
+        costo_actual , estado, NODO = heapq.heappop(open_list)
+        print(len(open_list))
+        if son_matrices_iguales(estado, MATRIZ_META):
+            #print("Se llego a la meta")
+            #print("Nodos explorados:")
+            #print(nodos_explorados)
+            return solucion(NODO)
+            # Goal reached, construct and return the path
+
+        closed_list.add((NODO.f2, tuple(map(tuple, NODO.state))))
+        nodos_explorados = nodos_explorados +1
+        ACCIONES = ACCIONES_LEGALES(estado)
+        for ACCION in ACCIONES:
+            # Crear NODO_HIJO
+            NODO_HIJO = Nodo(
+                parent=NODO,
+                action=[ACCION],
+                path_cost=NODO.path_cost + 1,
+                state = CREAR_MATRIZ_TEMPORAL([ACCION] , NODO.state)
+            )
+            NODO_HIJO.heuristic2 = NRO_DE_PIEZAS_INCORRECTAS(NODO_HIJO.state, MATRIZ_META),
+            NODO_HIJO.f2 = sum(NODO_HIJO.heuristic2) + NODO_HIJO.path_cost
+            
+            
+            if any(nodo[1] == NODO_HIJO.state for nodo in open_list):
+                   
+                   nodo_guardado = obtener_NODO(open_list, NODO_HIJO.state)
+                   if nodo_guardado.f2 <= NODO_HIJO.f2:
+                       continue
+                   
+                       
+            if any(x[1] == NODO_HIJO.state for x in closed_list): 
+                    
+                    costo =  obtener_COSTO(closed_list, NODO_HIJO.state)                                    
+                    if costo <= NODO_HIJO.f2:
+                        continue
+                
+       
+               
+            open_list = eliminar_nodo_de_open_list(open_list, NODO_HIJO.state)
+     
+            closed_list = eliminar_nodo_de_closet_list(closed_list, NODO_HIJO.state)
+            heapq.heappush(open_list, (NODO_HIJO.f2, NODO_HIJO.state, NODO_HIJO))
+
 
 def generarMatrizOrdenada(N):
     # Crea una lista con los números del 1 a (NxN)-1
@@ -265,7 +318,7 @@ def generarMatrizOrdenada(N):
             tabla[i][j] = numeros.pop(0)
 
     # Deja el elemento NxN (última fila y última columna) vacío
-    tabla[N - 1][N - 1] = ""
+    tabla[N - 1][N - 1] = 0
 
     return tabla    
 
@@ -276,8 +329,11 @@ def iniciarSolucion(matriz_desordenada,N):
     matriz_meta = generarMatrizOrdenada(N)
     nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
     inicio_A_Start_F2 = time.time() 
+    print(matriz_desordenada)
+    print(matriz_meta)
     CAMINO_A_START = A_START_F2(nodo_inicial,matriz_desordenada, matriz_meta)
     fin_A_Start_F2 = time.time()
     tiempo_transcurrido = fin_A_Start_F2 - inicio_A_Start_F2
+    print("Tiempo transcurrido:")
     print(tiempo_transcurrido)
     return CAMINO_A_START

@@ -234,7 +234,7 @@ def obtener_COSTO(closet_list, estado):
 def eliminar_nodo_de_open_list(open_list, estado):    
     elemento_a_comparar = estado
 # Crear una nueva lista sin la tupla que coincide
-    open_list_sin_coincidencia = [(f2, state, nodo) for f2, state, nodo in open_list if state != elemento_a_comparar]
+    open_list_sin_coincidencia = [(f2, state, nodo) for f2, state, nodo in open_list if not son_matrices_iguales(estado,state)]
 
 # Reemplazar open_list con la nueva lista
     open_list.clear()
@@ -250,7 +250,7 @@ def eliminar_nodo_de_closet_list(closed_list, estado):
     closed_list_lista = [tuple(x) for x in closed_list]
 
 # Elimina la tupla que coincide con el segundo elemento
-    closed_list_lista = [tupla for tupla in closed_list_lista if tupla[1] != elemento_a_comparar]
+    closed_list_lista = [tupla for tupla in closed_list_lista if not son_matrices_iguales(tupla[1],  elemento_a_comparar)]
 
 # Convierte la lista de nuevo en un conjunto de tuplas
     closed_list = set(closed_list_lista)

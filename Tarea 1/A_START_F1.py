@@ -269,7 +269,8 @@ def iniciarSolucion(matriz_desordenada,N):
     CAMINO_A_START = A_START_F1(nodo_inicial,matriz_desordenada, matriz_meta)
     fin_A_Start_F1 = time.time()
     tiempo_transcurrido = fin_A_Start_F1 - inicio_A_Start_F1
-    print(CAMINO_A_START)
+    print("Tiempo transcurrido:")
+    print(tiempo_transcurrido)
     return CAMINO_A_START
 
 

@@ -133,6 +133,7 @@ def CREAR_MATRIZ_TEMPORAL(ACCIONES, MATRIZ_DESORDENADA):
     return MATRIZ_RESULTANTE
 
 
+failure= []
 def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
     print("BFS")
     # Crear cola Q
@@ -179,10 +180,10 @@ def BREADTH_FIRST_SEARCH(NODO_INICIAL, MATRIZ_DESORDENADA, MATRIZ_META):
                 NODO.children.append(NODO_HIJO)  # Asumiendo que el nodo tiene un atributo 'children' para almacenar a sus hijos
                  # Imprimir NODO_HIJO.state
                 
-            else:
-                print("YA SE EXPLORO")
+            
     # Devolver NODO_INICIAL como la raíz del grafo
-   
+    return failure  
+
 
 def generarMatrizOrdenada(N):
     # Crea una lista con los números del 1 a (NxN)-1
@@ -198,17 +199,23 @@ def generarMatrizOrdenada(N):
             tabla[i][j] = numeros.pop(0)
 
     # Deja el elemento NxN (última fila y última columna) vacío
-    tabla[N - 1][N - 1] = ""
+    tabla[N - 1][N - 1] = 0
 
     return tabla    
 
 def iniciarSolucion(matriz_desordenada,N):
     matriz_meta = generarMatrizOrdenada(N)
     nodo_inicial = GENERAR_NODO_INICIAL(matriz_desordenada, matriz_meta)
+
     inicio_BFS = time.time() 
+    print("matriz desordenada")
+    print(matriz_desordenada)
+    print("matriz meta")
+    print(matriz_meta)
     RAIZ_ARBOL_BFS = BREADTH_FIRST_SEARCH(nodo_inicial, matriz_desordenada, matriz_meta)
     fin_BFS = time.time()  # Marcar el tiempo de finalización
     tiempo_transcurrido = fin_BFS - inicio_BFS
+    print(RAIZ_ARBOL_BFS)
     print("Tiempo transcurrido:")
     print(tiempo_transcurrido)
     return RAIZ_ARBOL_BFS

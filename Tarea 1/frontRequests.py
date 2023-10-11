@@ -9,9 +9,11 @@ eel.init("front")
 # Define rutas y funciones de la aplicación web
 @eel.expose
 def AstarUno(matriz,N):
+    """
     matriz = [[0,1,3],
               [2,5,4],
               [7,8,6]]
+    """
     print(matriz)
     print(N)
     solucion = funcionAStarF1(matriz,N)
