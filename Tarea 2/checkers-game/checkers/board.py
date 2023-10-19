@@ -15,6 +15,9 @@ class Board:
             for col in range(row % 2, COLS, 2):
                 pygame.draw.rect(win, RED, (row*SQUARE_SIZE, col *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
+    def evaluate(self):
+        return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5)
+
     def move(self, piece, row, col):
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
         piece.move(row, col)
@@ -80,18 +83,27 @@ class Board:
         if piece.color == WHITE or piece.king:
             moves.update(self._traverse_left(row +1, min(row+3, ROWS), 1, piece.color, left))
             moves.update(self._traverse_right(row +1, min(row+3, ROWS), 1, piece.color, right))
+
+        print ("moves are:")
+        print (moves)
     
         return moves
 
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
         moves = {}
         last = []
+        print ("start, stop, step")
+        print (start, stop, step)
+        print ("left", left)
         for r in range(start, stop, step):
+            print ("r is:", r)
             if left < 0:
                 break
             
             current = self.board[r][left]
+            print ("current is: ", current)
             if current == 0:
+                print ("current is equal to 0")
                 if skipped and not last:
                     break
                 elif skipped:
@@ -148,3 +160,11 @@ class Board:
             right += 1
         
         return moves
+    
+    def get_all_pieces(self, color):
+        pieces = []
+        for row in self.board:
+            for piece in row:
+                if piece != 0 and piece.color == color:
+                    pieces.append(piece)
+        return pieces
