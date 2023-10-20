@@ -34,6 +34,9 @@ class Game:
         piece = self.board.get_piece(row, col)
         if piece != 0 and piece.color == self.turn:
             self.selected = piece
+            print ("------------------------------------------------------")
+            print ("get valid moves fot this piece!")
+            print ("------------------------------------------------------")
             self.valid_moves = self.board.get_valid_moves(piece)
             return True
             

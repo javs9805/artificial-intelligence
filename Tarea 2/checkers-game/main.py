@@ -24,6 +24,8 @@ def main():
 
         if game.turn == WHITE:
             value, new_board = minimax(game.get_board(), 3, WHITE, game)
+            print ("value is,", value)
+
             game.ai_move(new_board)
 
         if game.winner() != None:
