@@ -16,19 +16,19 @@ class Board:
                 pygame.draw.rect(win, RED, (row*SQUARE_SIZE, col *SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def evaluate(self):
-        print ("EVALUATE")
-        print ("white left:", self.white_left)
-        print ("red left:", self. red_left)
-        print ("white kings:", self.white_kings)
-        print ("red_kings:", self.red_kings)
-        print ("value is: ", self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5))
-        print ("-------------------------------------------------------------------")
-        for row in range(ROWS):
-            for col in range(COLS):
-                print(self.board[row][col], end=", ")
-            print ("\n")
-        print ("-------------------------------------------------------------------")        
-        return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5)
+        # print ("EVALUATE")
+        # print ("white left:", self.white_left)
+        # print ("red left:", self. red_left)
+        # print ("white kings:", self.white_kings)
+        # print ("red_kings:", self.red_kings)
+        # print ("value is: ", self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5))
+        # print ("-------------------------------------------------------------------")
+        
+                # print(self.board[row][col], end=", ")
+            #print ("\n")
+        # print ("-------------------------------------------------------------------")        
+        evaluation = self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5) 
+        return evaluation
 
     def move(self, piece, row, col):
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
